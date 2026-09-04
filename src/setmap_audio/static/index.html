@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07110d" />
+    <title>SetMap — Music neighbourhoods</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/" aria-label="SetMap home">
+        <span class="brand-mark">⌾</span><span>SetMap</span>
+      </a>
+      <div class="header-actions">
+        <button class="view-map-link" id="view-map" type="button" hidden>VIEW MUSICAL MAP ↘</button>
+        <label class="profile-import">IMPORT PROFILES<input id="profile-import" type="file" accept="application/json,.json" /></label>
+        <div class="prototype-pill" id="runtime-pill"><i></i> LOCAL PROTOTYPE</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <p class="eyebrow">LOCAL MUSIC ATLAS / 001</p>
+        <h1>Put your set<br /><em>on the map.</em></h1>
+        <p class="lede">
+          Be found by your style. Turn up to four hours of audio into a searchable musical
+          position — entirely on your CPU. Nothing leaves this machine.
+        </p>
+        <div class="hero-map" aria-hidden="true">
+          <div class="hero-map-meta"><span>STYLE SPACE</span><b>LOCAL / 512D</b></div>
+          <svg viewBox="0 0 460 190">
+            <path class="hero-contour contour-one" d="M-14 129C41 78 105 81 151 103s76 50 139 23 112-81 190-43" />
+            <path class="hero-contour contour-two" d="M-9 153c61-39 111-27 164-4s102 24 151-10 84-57 167-27" />
+            <path class="hero-route" d="M62 131 153 77 247 116 358 55 423 92" />
+            <g class="hero-points">
+              <circle cx="62" cy="131" r="4" /><circle cx="153" cy="77" r="5" />
+              <circle class="hero-active" cx="247" cy="116" r="8" />
+              <circle cx="358" cy="55" r="4" /><circle cx="423" cy="92" r="5" />
+            </g>
+            <text x="263" y="108">YOUR SET</text>
+          </svg>
+        </div>
+
+        <section class="library" aria-labelledby="library-title">
+          <div class="library-heading">
+            <div><span>YOUR ATLAS</span><h2 id="library-title">Mapped sets</h2></div>
+            <div class="library-tools"><button id="clear-library" type="button" hidden>CLEAR</button><b id="library-count">0</b></div>
+          </div>
+          <div class="library-empty" id="library-empty">Your completed profiles will stay here on this device.</div>
+          <div class="library-list" id="library-list"></div>
+          <button class="library-map" id="library-map" type="button" hidden>OPEN COLLECTION MAP <span>↗</span></button>
+        </section>
+      </section>
+
+      <section class="workspace" aria-label="Audio profile workspace">
+        <form id="upload-form">
+          <div class="section-label"><span>01</span> SOURCE AUDIO</div>
+          <label class="dropzone" id="dropzone" for="audio-file">
+            <input id="audio-file" name="audio" type="file" accept="audio/*,.m4a" multiple required />
+            <span class="locator" aria-hidden="true"><i></i><b></b></span>
+            <span class="drop-copy">
+              <strong id="file-label">Drop one or more DJ sets here</strong>
+              <small id="file-meta">MP3, WAV, FLAC, M4A, AAC, OGG or Opus · max 4 hours each</small>
+            </span>
+            <span class="browse">CHOOSE FILE</span>
+          </label>
+
+          <div class="controls">
+            <div>
+              <div class="section-label"><span>02</span> SAMPLE DENSITY</div>
+              <div class="segmented" role="group" aria-label="Sample density">
+                <label><input type="radio" name="interval_seconds" value="30" /><span>LIGHT<small>every 30s</small></span></label>
+                <label><input type="radio" name="interval_seconds" value="25" checked /><span>BALANCED<small>every 25s</small></span></label>
+                <label><input type="radio" name="interval_seconds" value="20" /><span>DEEP<small>every 20s</small></span></label>
+              </div>
+            </div>
+            <div class="output-spec">
+              <div class="section-label"><span>03</span> OUTPUT</div>
+              <div class="vector-stack" aria-label="Three vectors">
+                <span></span><span></span><span></span>
+                <p><strong>3 × 512D</strong><small>global + 2 sound clusters</small></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="experimental-control">
+            <div class="section-label"><span>04</span> EMBEDDING OUTLIERS <small>EXPERIMENTAL</small></div>
+            <div class="segmented" role="group" aria-label="Embedding outlier treatment">
+              <label><input type="radio" name="embedding_outlier_max_fraction" value="0" checked /><span>OFF<small>best in test</small></span></label>
+              <label><input type="radio" name="embedding_outlier_max_fraction" value="0.05" /><span>LIGHT<small>max 5%</small></span></label>
+              <label><input type="radio" name="embedding_outlier_max_fraction" value="0.1" /><span>STRONG<small>max 10%</small></span></label>
+            </div>
+            <p>Uses local cosine density after embedding. Useful for evaluation; disabled by default because distinctive clips helped separation in the six-set benchmark.</p>
+          </div>
+
+          <button class="process" type="submit">
+            <span>MAP THESE SETS</span><b>→</b>
+          </button>
+          <p class="form-error" id="form-error" role="alert"></p>
+        </form>
+
+        <div class="status-panel" id="status-panel" hidden>
+          <div class="status-top">
+            <div><span class="pulse"></span><b id="status-stage">PREPARING</b></div>
+            <span id="status-percent">0%</span>
+          </div>
+          <div class="progress-track"><i id="progress-bar"></i></div>
+          <p id="status-message">Starting the CPU worker…</p>
+          <div class="radar" aria-hidden="true">
+            <i class="radar-sweep"></i>
+            <span class="radar-detections"></span>
+            <span class="radar-center"></span>
+          </div>
+        </div>
+
+        <div class="result-panel" id="result-panel" hidden>
+          <div class="result-heading">
+            <div><span class="success">✓</span><div><small>POSITION CALCULATED</small><h2>Your sound has coordinates.</h2></div></div>
+            <button id="download-json" type="button">DOWNLOAD JSON ↓</button>
+          </div>
+          <div class="stats" id="stats"></div>
+          <div class="vectors" id="vectors"></div>
+          <p class="result-note">Vectors are L2-normalized and ready for PostgreSQL <code>vector(512)</code> columns. PCA is diagnostic only.</p>
+        </div>
+
+        <div class="map-panel" id="map-panel" hidden>
+          <div class="map-heading">
+            <div>
+              <small>MUSICAL MAP / LIVE COLLECTION</small>
+              <h2>Find the nearest sound.</h2>
+              <p>One stable global position per set. Neighbour labels still use the full weighted 512D profile.</p>
+            </div>
+            <div class="axis-key" id="projection-key">PC 02 ↑<br />PC 01 →</div>
+          </div>
+          <div class="map-canvas">
+            <svg id="musical-map" viewBox="0 0 1000 560" role="img" aria-label="Musical similarity map"></svg>
+          </div>
+          <div class="map-legend" id="map-legend"></div>
+          <p class="result-note" id="projection-note">A frozen reference projection keeps existing positions stable as new sets arrive.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>CLAP / CPU</span><span>LOCAL PROCESSING</span><span>PGVECTOR READY</span>
+    </footer>
+    <script src="/static/app.js" type="module"></script>
+  </body>
+</html>
